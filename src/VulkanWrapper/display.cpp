@@ -180,3 +180,19 @@ VkDisplay vulkanDisplayBuilder::get(){ return display; }
 
 
 vulkanDisplayBuilder::vulkanDisplayBuilder(VkContext ctx,GLFWwindow* window):context(ctx),window(window){}
+
+void destroyVkDisplay(VkContext ctx,VkDisplay display){
+
+	vkDestroySwapchainKHR(ctx.device, display.swapChain,nullptr);
+	vkDestroyRenderPass(ctx.device,display.renderPass,nullptr);
+
+	for(int i = 0; i < display.image.size(); i++)
+		vkDestroyImage(ctx.device,display.image[i],nullptr);
+
+	for(int i = 0; i < display.view.size(); i++)
+		vkDestroyImageView(ctx.device,display.view[i],nullptr);
+	
+	for(int i = 0; i < display.frameBuffer.size(); i++)
+		vkDestroyFramebuffer(ctx.device,display.frameBuffer[i],nullptr);
+	
+}

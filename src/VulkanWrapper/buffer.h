@@ -1,6 +1,7 @@
 #pragma once
 #include"vkContext.h"
 #include "vertex.h"
+#include "descriptor.h"
 
 struct Buffer
 {
@@ -12,7 +13,9 @@ struct Buffer
 
 
 Buffer createBuffer(const VkContext& context,const VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties);
-Buffer createVertexBuffer(const VkContext& context, VkCommand cmd, const std::vector<Vertex>&);
-Buffer createIndexBuffer(const VkContext& context, VkCommand cmd, const std::vector<uint32_t>&);
+Buffer createVertexBuffer(const VkContext& context, VkCommand* cmd, const std::vector<Vertex>&);
+Buffer createIndexBuffer(const VkContext& context, VkCommand* cmd, const std::vector<uint32_t>&);
 
 VkDeviceAddress queryBufferAddress(VkContext& context, VkBuffer other);
+
+void destroyBuffer(VkContext ctx, Buffer buffer);

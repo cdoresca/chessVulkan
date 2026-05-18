@@ -1,6 +1,10 @@
 #include "pipeline.h"
 #include "vertex.h"
 
+vulkanPipelineBuilder::vulkanPipelineBuilder(const VkContext& ctx, const VkDisplay& display, descriptor* d,std::vector<shader> s):ctx(ctx),display(display),m_descriptor(d){
+	for(int i = 0; i <s.size(); i++)
+		addShader(s[i]);
+}
 
 void  vulkanPipelineBuilder::createPipeline() {
 
@@ -125,3 +129,8 @@ void vulkanPipelineBuilder::build(){
 }
 
 VkPipelineDescription vulkanPipelineBuilder::get(){ return pipeline; };
+
+void destroyVkPipelineDescription(VkContext ctx, VkPipelineDescription pipeline){
+	vkDestroyPipeline(ctx.device,pipeline.graphicsPipeline, nullptr);
+	vkDestroyPipelineLayout(ctx.device,pipeline.pipelineLayout, nullptr);
+}

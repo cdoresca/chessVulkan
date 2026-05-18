@@ -1,6 +1,9 @@
 #include"model.h"
 
-
+model::model(renderer* r): render_(r){
+    vertices = quad();
+    verticesBuffer = render_->uploadVertex(vertices);
+}
 
 std::vector<Vertex> quad(uint32_t height,uint32_t width)
 {
@@ -19,4 +22,5 @@ std::vector<Vertex> quad(uint32_t height,uint32_t width)
         v.normal = glm::vec4(0.0f,0.0f,1.0f,0.0f);
         vertices.push_back(v);
     }
+    return vertices;
 }

@@ -1,13 +1,13 @@
 #pragma once 
 
-#define GLFW_INCLUDE_VULKAN
-#include<GLFW/glfw3.h>
+
 template<typename T>
 class IBuilder{
     
     public:
 
-        IBuilder();
+        IBuilder() = default;
+        ~IBuilder() = default;
         virtual void build() = 0;
         virtual void reset() = 0;
         virtual T get() = 0;
@@ -16,10 +16,10 @@ class IBuilder{
 template<typename T>
 class director
 {
-    IBuilder* builder;
+    IBuilder<T>* builder;
 
     public:
-        director(IBuilder* builder);
-        void make();
+        director(IBuilder<T>* builder):builder(builder){}
+        void make(){builder->build();}
         
 };

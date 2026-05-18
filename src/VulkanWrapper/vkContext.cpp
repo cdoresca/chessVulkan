@@ -288,3 +288,11 @@ void vulkanContextBuilder::build(){
 	createDevice();
 	createQueue();
 }
+
+void destroyVkContext(VkContext ctx){
+	vkDestroyDevice(ctx.device,nullptr);
+	vkDestroySurfaceKHR(ctx.instance,ctx.surface,nullptr);
+	if(enableValidationLayers)
+		DestroyDebugUtilsMessengerEXT(ctx.instance, ctx.debugMessenger, nullptr);
+	vkDestroyInstance(ctx.instance,nullptr);
+}

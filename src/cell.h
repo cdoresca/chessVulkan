@@ -1,13 +1,8 @@
 #pragma once
-#include "Piece/piece.h"
 
-struct Position{
+#include "move.h"
 
-    int row;
-    int column;
-    
-    bool operator==(const Position& other) const;
-};
+class pieceBase;
 
 class cell{
     Position pos;

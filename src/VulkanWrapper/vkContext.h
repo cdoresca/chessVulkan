@@ -6,6 +6,7 @@
 #include <vector>
 
 #include"IBuilder.h"
+#include<GLFW/glfw3.h>
 
 #ifdef NDEBUG
 const bool enableValidationLayers = false;
@@ -127,3 +128,4 @@ class vulkanContextBuilder: public IBuilder<VkContext>
         VkContext get() override;
 };
 
+void destroyVkContext(VkContext ctx);

@@ -1,6 +1,6 @@
 #include"bishop.h"
-
-bishop::bishop(const char* name, Position pos,Color color,bool alive = true):pieceBase(name, pos, color, alive){ }
+#include "gameState.h"
+bishop::bishop(const char* name, Position pos,Color color,bool alive):pieceBase(name, pos, color, alive){ }
 
 std::vector<Position> bishop::generateMoves(const gameState* state){
 
@@ -33,4 +33,11 @@ std::vector<Position> bishop::generateMoves(const gameState* state){
     }
     return moves;
 
+}
+
+pieceBase* bishop::clone() const{
+    return new bishop(name,position,color,alive);
+}
+pieceBase* bishop::clone(Move mv) const {
+    return new bishop(name, mv.to,color,alive);
 }

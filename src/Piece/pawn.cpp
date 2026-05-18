@@ -1,6 +1,6 @@
 #include"pawn.h"
-
-pawn::pawn(const char* name, Position pos,Color color,bool alive = true):pieceBase(name, pos, color, alive){ }
+#include "gameState.h"
+pawn::pawn(const char* name, Position pos,Color color,bool alive):pieceBase(name, pos, color, alive){ }
 
 std::vector<Position> pawn::straight(){
     std::vector<Position> moves;
@@ -51,5 +51,12 @@ std::vector<Position> pawn::generateMoves(const gameState* state){
         color != state->getBoard(pos)->getPiece()->getColor()) 
             moves.push_back(pos);
     }
-    
+    return moves;
+}
+
+pieceBase* pawn::clone() const{
+    return new pawn(name,position,color,alive);
+}
+pieceBase* pawn::clone(Move mv) const {
+    return new pawn(name, mv.to,color,alive);
 }

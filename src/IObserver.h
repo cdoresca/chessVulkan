@@ -9,7 +9,7 @@ class IObserver{
 class Subject{
 
     std::list<IObserver*> obsevers;
-
-    void addObserver(IObserver* o){ obsevers.push_back(o); }
-    void removeObserver(IObserver* o){ obsevers.remove(o); }
+    public:
+        void addObserver(IObserver* o){ obsevers.push_back(o); }
+        void removeObserver(IObserver* o){ obsevers.remove(o); }
 };

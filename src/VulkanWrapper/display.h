@@ -1,6 +1,7 @@
 #pragma once
 #include "vkContext.h"
 
+
 struct VkDisplay{
 	VkSwapchainKHR swapChain;
 	VkFormat format;
@@ -29,3 +30,5 @@ class vulkanDisplayBuilder:public IBuilder<VkDisplay>
 		void build() override;
 		VkDisplay get() override;
 };
+
+void destroyVkDisplay(VkContext ctx, VkDisplay display);

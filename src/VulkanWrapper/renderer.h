@@ -4,20 +4,17 @@
 
 class renderer {
 
-	const VkContext& context;
-	const VkDisplay& display;
-	const VkPipelineDescription& pipeline;
-	VkCommand cmd;
-	descriptor* m_desc;
+	VkContext context;
+	VkCommand* cmd;
 	
-	void cleanup();
+	
 
 	public:
 		
-		renderer();
+		renderer(const VkContext& context,VkCommand* cmd);
 		~renderer();
 
-		Buffer uploadVertex(const std::vector<Vertex> vertices);
+		Buffer uploadVertex(const std::vector<Vertex>& vertices);
 		Texture uploadTexture(const char*);
 		
 };

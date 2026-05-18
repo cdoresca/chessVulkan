@@ -7,15 +7,15 @@
 class model{
 
     protected: 
-        renderer* render;
+        renderer* render_;
         std::vector<Vertex> vertices;
         Buffer verticesBuffer;
         Texture texel;
 
     public:
-        virtual void render();
-
+        model(renderer* render);
+        virtual void render(VkCommandBuffer cmd)const = 0;
 
 };
 
-std::vector<Vertex> quad(uint32_t height,uint32_t width);
+std::vector<Vertex> quad(uint32_t height = 5,uint32_t width = 5);

@@ -24,8 +24,8 @@ std::array<VkVertexInputAttributeDescription,3> getAttributeDescription(){
 	attribute[1].offset = offsetof(Vertex,Vertex::normal);
 
 	attribute[2].binding = 0;
-	attribute[2].location = 0;
-	attribute[2].format = VK_FORMAT_R32G32B32_SFLOAT;
+	attribute[2].location = 2;
+	attribute[2].format = VK_FORMAT_R32G32_SFLOAT;
 	attribute[2].offset = offsetof(Vertex,Vertex::texcoord);
 
 	return attribute;

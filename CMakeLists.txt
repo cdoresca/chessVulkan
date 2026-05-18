@@ -68,3 +68,7 @@ add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${SOURCE_DIR} ${stb_SOURCE_DIR})
 target_link_libraries(${PROJECT_NAME} PRIVATE glfw Vulkan::Vulkan glm::glm)
+
+target_compile_definitions(${PROJECT_NAME} PRIVATE
+    IMAGE_DIR="${CMAKE_CURRENT_SOURCE_DIR}/image/PNGs/No shadow/1x"
+)

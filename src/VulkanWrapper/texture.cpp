@@ -94,85 +94,6 @@ void setImageLayout(
 
 }
 
-Texture createTexture(VkContext context, const char* path, VkCommand cmd){
-
-	// Lecture image stb
-    int texWidth, texHeight, texChannels;
-    stbi_uc* pixels = stbi_load(path, &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
-    VkDeviceSize imageSize = texWidth * texHeight * 4;
-
-    if (!pixels) {
-        throw std::runtime_error("failed to load texture image!");
-    }
-
-	
-	Texture texel;
-	Buffer stagging = createBuffer(context, 
-		imageSize,
-		VK_BUFFER_USAGE_TRANSFER_SRC_BIT, 
-		VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
-	);
-
-	vkMapMemory(context.device, stagging.memory, 0, imageSize, 0, &stagging.data);
-    memcpy(stagging.data, pixels, static_cast<size_t>(imageSize));
-    vkUnmapMemory(context.device, stagging.memory);
-    
-    stbi_image_free(pixels);
-
-    createImage(context, 
-		texWidth, 
-		texHeight, 
-		texel,
-		VK_FORMAT_R8G8B8A8_SRGB, 
-		VK_IMAGE_TILING_OPTIMAL, 
-		VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
-		VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
-	);
-
-	VkCommandBuffer cmdbuffer = cmd.createCmdBuffer();
-    setImageLayout(
-		cmdbuffer,
-		texel.image,
-		VK_IMAGE_LAYOUT_UNDEFINED,
-		VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-		{ VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 }
-	);
-
-    copyBufferToImage(stagging.buffer,texel.image,cmdbuffer,texWidth,texHeight);
-
-    setImageLayout(
-		cmdbuffer,
-		texel.image,
-		VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-		VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-		{ VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 }
-	);
-	cmd.submitCmdBuffer(cmdbuffer);
-	VkPhysicalDeviceProperties properties{};
-	vkGetPhysicalDeviceProperties(context.physicalDevice, &properties);
-
-	VkSamplerCreateInfo samplerInfo{};
-	samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-	samplerInfo.magFilter = VK_FILTER_LINEAR;
-	samplerInfo.minFilter = VK_FILTER_LINEAR;
-	samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-	samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-	samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-	samplerInfo.anisotropyEnable = VK_TRUE;
-	samplerInfo.maxAnisotropy = properties.limits.maxSamplerAnisotropy;
-	samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
-	samplerInfo.unnormalizedCoordinates = VK_FALSE;
-	samplerInfo.compareEnable = VK_FALSE;
-	samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
-	samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-	samplerInfo.mipLodBias = 0.0f;
-	samplerInfo.minLod = 0.0f;
-	samplerInfo.maxLod = 0.0f;
-
-	VK_CHECK(vkCreateSampler(context.device, &samplerInfo, nullptr, &texel.sample));
-
-	return texel;
-}
 
 
 uint32_t findMemoryType(const VkContext context,uint32_t typeFilter, VkMemoryPropertyFlags properties){
@@ -203,21 +124,21 @@ void createImage(VkContext ctx,uint32_t width, uint32_t height, Texture& texel,V
     imageInfo.usage = usage;
     imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
     imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-
+	
     VK_CHECK(vkCreateImage(ctx.device, &imageInfo, nullptr, &texel.image));
-  
+	
     VkMemoryRequirements memRequirements;
     vkGetImageMemoryRequirements(ctx.device, texel.image, &memRequirements);
-
+	
     VkMemoryAllocateInfo allocInfo{};
     allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
     allocInfo.allocationSize = memRequirements.size;
     allocInfo.memoryTypeIndex = findMemoryType(ctx ,memRequirements.memoryTypeBits, properties);
-
+	
     VK_CHECK(vkAllocateMemory(ctx.device, &allocInfo, nullptr, &texel.memory));
-
+	
     vkBindImageMemory(ctx.device, texel.image, texel.memory, 0);
-
+	
 	
     VkImageViewCreateInfo viewInfo{};
     viewInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -229,9 +150,96 @@ void createImage(VkContext ctx,uint32_t width, uint32_t height, Texture& texel,V
     viewInfo.subresourceRange.levelCount = 1;
     viewInfo.subresourceRange.baseArrayLayer = 0;
     viewInfo.subresourceRange.layerCount = 1;
-
+	
     
     VK_CHECK(vkCreateImageView(ctx.device, &viewInfo, nullptr, &texel.view));
-
+	
 }
 
+
+void destroyTexture(VkContext ctx,Texture texel){
+	vkDestroyImage(ctx.device,texel.image,nullptr);
+	vkDestroyImageView(ctx.device,texel.view,nullptr);
+	vkDestroySampler(ctx.device,texel.sample,nullptr);
+	vkFreeMemory(ctx.device,texel.memory,nullptr);
+	
+}
+Texture createTexture(VkContext context, const char* path, VkCommand* cmd){
+
+	// Lecture image stb
+	int texWidth, texHeight, texChannels;
+	stbi_uc* pixels = stbi_load(path, &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+	VkDeviceSize imageSize = texWidth * texHeight * 4;
+
+	if (!pixels) {
+		throw std::runtime_error("failed to load texture image!");
+	}
+
+	
+	Texture texel;
+	Buffer stagging = createBuffer(context, 
+		imageSize,
+		VK_BUFFER_USAGE_TRANSFER_SRC_BIT, 
+		VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+	);
+
+	vkMapMemory(context.device, stagging.memory, 0, imageSize, 0, &stagging.data);
+	memcpy(stagging.data, pixels, static_cast<size_t>(imageSize));
+	vkUnmapMemory(context.device, stagging.memory);
+	
+	stbi_image_free(pixels);
+
+	createImage(context, 
+		texWidth, 
+		texHeight, 
+		texel,
+		VK_FORMAT_R8G8B8A8_SRGB, 
+		VK_IMAGE_TILING_OPTIMAL, 
+		VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
+		VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
+	);
+
+	VkCommandBuffer cmdbuffer = cmd->createCmdBuffer();
+	setImageLayout(
+		cmdbuffer,
+		texel.image,
+		VK_IMAGE_LAYOUT_UNDEFINED,
+		VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+		{ VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 }
+	);
+
+	copyBufferToImage(stagging.buffer,texel.image,cmdbuffer,texWidth,texHeight);
+
+	setImageLayout(
+		cmdbuffer,
+		texel.image,
+		VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+		VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+		{ VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 }
+	);
+	cmd->submitCmdBuffer(cmdbuffer);
+	VkPhysicalDeviceProperties properties{};
+	vkGetPhysicalDeviceProperties(context.physicalDevice, &properties);
+
+	VkSamplerCreateInfo samplerInfo{};
+	samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+	samplerInfo.magFilter = VK_FILTER_LINEAR;
+	samplerInfo.minFilter = VK_FILTER_LINEAR;
+	samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	samplerInfo.anisotropyEnable = VK_TRUE;
+	samplerInfo.maxAnisotropy = properties.limits.maxSamplerAnisotropy;
+	samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+	samplerInfo.unnormalizedCoordinates = VK_FALSE;
+	samplerInfo.compareEnable = VK_FALSE;
+	samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
+	samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+	samplerInfo.mipLodBias = 0.0f;
+	samplerInfo.minLod = 0.0f;
+	samplerInfo.maxLod = 0.0f;
+
+	VK_CHECK(vkCreateSampler(context.device, &samplerInfo, nullptr, &texel.sample));
+
+	return texel;
+}

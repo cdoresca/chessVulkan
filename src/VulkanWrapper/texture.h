@@ -1,6 +1,6 @@
 #pragma once
 #include"vkContext.h"
-#include "command.h"
+#include "VkCommand.h"
 
 struct Texture {
     
@@ -11,6 +11,6 @@ struct Texture {
     
 };
 
-Texture createTexture(const VkContext context, const char* path, VkCommand cmd);
+Texture createTexture(const VkContext context, const char* path, VkCommand* cmd);
 
-
+void destroyTexture(VkContext ctx,Texture texel);

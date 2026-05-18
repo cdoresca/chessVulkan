@@ -1,5 +1,14 @@
 #pragma once
-#include"cell.h"
+
+
+struct Position{
+
+    int row;
+    int column;
+    
+    bool operator==(const Position& other) const;
+};
+
 
 struct Move{
 

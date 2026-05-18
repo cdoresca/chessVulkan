@@ -1,6 +1,6 @@
 #include "king.h"
-
-king::king(const char* name, Position pos,Color color,bool alive = true):pieceBase(name, pos, color, alive){ }
+#include "gameState.h"
+king::king(const char* name, Position pos,Color color,bool alive):pieceBase(name, pos, color, alive){ }
 
 std::vector<Position> king::generateMoves(const gameState* state)
 {
@@ -40,4 +40,11 @@ std::vector<Position> king::mouvement(){
     }
 
     return moves;
+}
+
+pieceBase* king::clone() const{
+    return new king(name,position,color,alive);
+}
+pieceBase* king::clone(Move mv) const {
+    return new king(name, mv.to,color,alive);
 }

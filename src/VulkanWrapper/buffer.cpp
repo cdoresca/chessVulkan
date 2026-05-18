@@ -1,6 +1,6 @@
 #include"buffer.h"
 #include <cstring>
-#include "command.h"
+#include "VkCommand.h"
 
 uint32_t findMemoryType(const VkContext& context,uint32_t typeFilter, VkMemoryPropertyFlags properties){
 	VkPhysicalDeviceMemoryProperties memProperties;
@@ -42,7 +42,7 @@ void createBuffer(const VkContext& context, const VkDeviceSize size, const VkBuf
 	VK_CHECK(vkBindBufferMemory(context.device, buffer.buffer, buffer.memory, 0));
 }
 
-void staggingBuffer(const VkContext& context,const VkDeviceSize size, const VkBufferUsageFlags usage, VkCommand cmd, Buffer& buffer, void* data){
+void staggingBuffer(const VkContext& context,const VkDeviceSize size, const VkBufferUsageFlags usage, VkCommand* cmd, Buffer& buffer, void* data){
 
 	Buffer stagging;
 
@@ -58,10 +58,10 @@ void staggingBuffer(const VkContext& context,const VkDeviceSize size, const VkBu
 	VK_CHECK(vkMapMemory(context.device, stagging.memory, 0, size, 0, &buffer.data));
 	memcpy(buffer.data, data, size);
 	vkUnmapMemory(context.device, stagging.memory);
-
-	VkCommandBuffer cmdbuffer = cmd.createCmdBuffer();
-	copyBuffer(stagging.buffer, buffer.buffer, cmd, size);
-	cmd.submitCmdBuffer(cmdbuffer);
+	
+	VkCommandBuffer cmdBuffer = cmd->createCmdBuffer();
+	copyBuffer(stagging.buffer, buffer.buffer, cmdBuffer, size);
+	cmd->submitCmdBuffer(cmdBuffer);
 	
 	vkDestroyBuffer(context.device, stagging.buffer, nullptr);
 	vkFreeMemory(context.device, stagging.memory, nullptr);
@@ -76,7 +76,7 @@ Buffer createBuffer(const VkContext& context,const VkDeviceSize size, VkBufferUs
 	return tmp;
 }
 
-Buffer createVertexBuffer(const VkContext& context, VkCommand cmd,const std::vector<Vertex>& vertices){
+Buffer createVertexBuffer(const VkContext& context, VkCommand* cmd,const std::vector<Vertex>& vertices){
     VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
 	VkBufferUsageFlags usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | 
 		VK_BUFFER_USAGE_TRANSFER_DST_BIT;
@@ -86,7 +86,7 @@ Buffer createVertexBuffer(const VkContext& context, VkCommand cmd,const std::vec
 	return tmp;
 }
 
-Buffer createIndexBuffer(const VkContext& context, VkCommand cmd,const std::vector<uint32_t>& index)
+Buffer createIndexBuffer(const VkContext& context, VkCommand* cmd,const std::vector<uint32_t>& index)
 {
     VkDeviceSize bufferSize = sizeof(index[0]) * index.size();
 	VkBufferUsageFlags usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT|
@@ -105,4 +105,10 @@ VkDeviceAddress queryBufferAddress(VkContext& context, VkBuffer other){
 
 	return vkGetBufferDeviceAddress(context.device, &info);
 
+}
+
+
+void destroyBuffer(VkContext ctx, Buffer buffer){
+	vkDestroyBuffer(ctx.device,buffer.buffer,nullptr);
+	vkFreeMemory(ctx.device, buffer.memory, nullptr);
 }

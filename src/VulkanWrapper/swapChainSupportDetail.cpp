@@ -27,7 +27,7 @@ SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device, VkSurface
 	return details;
 }
 
-VkSurfaceFormatKHR chooseSwapSurfaceFormat(const vector<VkSurfaceFormatKHR>& availableFormats) {
+VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats) {
 
 	for (const auto& availableFormat : availableFormats) {
 
@@ -39,7 +39,7 @@ VkSurfaceFormatKHR chooseSwapSurfaceFormat(const vector<VkSurfaceFormatKHR>& ava
 	return availableFormats[0];
 }
 
-VkPresentModeKHR chooseSwapPresentMode(const vector<VkPresentModeKHR>& availablePresentModes) {
+VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes) {
 	for (const auto& availablePresentMode : availablePresentModes) {
 		if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR)
 			return availablePresentMode;
@@ -58,8 +58,8 @@ VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities, GLFWwi
 
 		VkExtent2D actualExtent = { static_cast<uint32_t>(height), static_cast<uint32_t>(width) };
 
-		actualExtent.width = clamp(actualExtent.width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width);
-		actualExtent.height = clamp(actualExtent.height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height);
+		actualExtent.width = std::clamp(actualExtent.width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width);
+		actualExtent.height = std::clamp(actualExtent.height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height);
 
 		return actualExtent;
 	}

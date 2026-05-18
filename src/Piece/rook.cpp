@@ -1,6 +1,6 @@
 #include "rook.h"
-
-rook::rook(const char* name, Position pos,Color color,bool alive = true):pieceBase(name, pos, color, alive){ }
+#include "gameState.h"
+rook::rook(const char* name, Position pos,Color color,bool alive):pieceBase(name, pos, color, alive){ }
 
 std::vector<Position> rook::generateMoves(const gameState* state){
     std::vector<Position> moves;
@@ -31,4 +31,11 @@ std::vector<Position> rook::generateMoves(const gameState* state){
     }
 
     return moves;
+}
+
+pieceBase* rook::clone() const{
+    return new rook(name,position,color,alive);
+}
+pieceBase* rook::clone(Move mv) const {
+    return new rook(name, mv.to,color,alive);
 }

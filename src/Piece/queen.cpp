@@ -1,6 +1,6 @@
 #include"queen.h"
-
-queen::queen(const char* name, Position pos,Color color,bool alive = true):pieceBase(name, pos, color, alive){ }
+#include "gameState.h"
+queen::queen(const char* name, Position pos,Color color,bool alive):pieceBase(name, pos, color, alive){ }
 
 std::vector<Position> queen::generateMoves(const gameState* state){
 
@@ -33,4 +33,11 @@ std::vector<Position> queen::generateMoves(const gameState* state){
         }
     }
     return moves;
+}
+
+pieceBase* queen::clone() const{
+    return new queen(name,position,color,alive);
+}
+pieceBase* queen::clone(Move mv) const {
+    return new queen(name, mv.to,color,alive);
 }

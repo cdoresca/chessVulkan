@@ -1,6 +1,6 @@
 #include "knight.h"
-
-knight::knight(const char* name, Position pos,Color color,bool alive = true):pieceBase(name, pos, color, alive){ }
+#include "gameState.h"
+knight::knight(const char* name, Position pos,Color color,bool alive):pieceBase(name, pos, color, alive){ }
 
 std::vector<Position> knight::mouvement(){
     std::vector<Position> moves;
@@ -29,6 +29,7 @@ std::vector<Position> knight::mouvement(){
 
         if ((0 <= nx && nx < 8) && (0 <= ny && ny < 8)) moves.push_back({nx,ny});
     }
+    return moves;
 }
 
 std::vector<Position> knight::generateMoves(const gameState* state)
@@ -41,5 +42,12 @@ std::vector<Position> knight::generateMoves(const gameState* state)
             && color != state->getBoard(pos)->getPiece()->getColor()))
             moves.push_back(pos);
     }
+    return moves;
+}
 
+pieceBase* knight::clone() const{
+    return new knight(name,position,color,alive);
+}
+pieceBase* knight::clone(Move mv) const {
+    return new knight(name, mv.to,color,alive);
 }

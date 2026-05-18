@@ -7,7 +7,7 @@ class game{
 
    
 
-    gameState state;
+    gameState* state;
 
     public:
 

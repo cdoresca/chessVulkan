@@ -1,16 +1,16 @@
 #pragma once
+#include<vector>
+#include "move.h"
 
-#include<string>
-#include <vector>
-
-#include "gameState.h"
+class gameState;
 
 enum Color { WHITE, BLACK };
+
 
 class pieceBase{
 
     protected:
-        std::string name;
+        const char* name;
         Position position;
         
         bool alive;
@@ -26,8 +26,8 @@ class pieceBase{
         const char* getName();
         Position getPosition();
 
-        virtual pieceBase* clone() const;
-        virtual pieceBase* clone(Move mv) const;
+        virtual pieceBase* clone() const = 0;
+        virtual pieceBase* clone(Move mv) const = 0;
 
 
 };

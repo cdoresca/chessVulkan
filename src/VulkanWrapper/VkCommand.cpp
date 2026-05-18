@@ -1,4 +1,6 @@
-#include "command.h"
+#include "VkCommand.h"
+
+VkCommand::VkCommand(VkContext ctx):context(ctx){}
 
 VkCommandBuffer createTmpCommandBuffer(const VkContext& context,VkCommandPool pool,VkCommandBufferUsageFlags flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VkCommandBufferInheritanceInfo* info = nullptr){
     VkCommandBuffer tmp;
@@ -56,9 +58,9 @@ void flushCommandBuffer(const VkContext& context,VkCommandPool pool,VkCommandBuf
 	}
 }
 
-VkCommandBuffer VkCommand::createCmdBuffer() { return createTmpCommandBuffer(context, pool); }
+VkCommandBuffer VkCommand::createCmdBuffer() const { return createTmpCommandBuffer(context, pool); }
 
-void VkCommand::submitCmdBuffer(VkCommandBuffer cmd, bool free){
+void VkCommand::submitCmdBuffer(VkCommandBuffer cmd, bool free) const{
 	flushCommandBuffer(context, pool, cmd, free);
 }
 
@@ -99,4 +101,10 @@ void copyBufferToImage(VkBuffer buffer, VkImage texel, VkCommandBuffer cmd, uint
 		1,
 		&region
 	);
+}
+
+VkCommandPool VkCommand::getPool() const { return pool;}
+
+void VkCommand::cleanup(){
+	vkDestroyCommandPool(context.device,pool,nullptr);
 }

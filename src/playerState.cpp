@@ -21,3 +21,7 @@ void playerState::remove(pieceBase* p){
         }
     }
 }
+
+  
+std::unordered_map<const char*, pieceBase*> playerState::getPieces(){ return pieces;}  
+  
