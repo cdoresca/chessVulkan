@@ -41,7 +41,7 @@ std::vector<Move> gameState::generateLegalMove(){
     {
         std::vector<Position> positions = piece.second->generateMoves(this);
         for(int i = 0; i < positions.size(); i++){
-            Move move = { .from = piece.second->getPosition(), .to = positions[i] };
+            Move move  { piece.second->getPosition(),  positions[i] };
 
             gameState* newState = ApplyMove(move);
             if(!newState->check(turn)){

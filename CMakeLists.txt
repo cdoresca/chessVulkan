@@ -63,8 +63,74 @@ foreach(SRC IN ITEMS ${SOURCE_FILES})
     source_group("Source${GROUPE_PATH}" FILES "${SRC}")
 endforeach()
 
+# ============================================================================
+# Compilation shaders
+# ============================================================================
+
+
+set(SHADER_SRC_DIR ${SOURCE_DIR}/shader)
+set(SHADER_OUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/shader)
+set(Vulkan_GLSLC_EXECUTABLE $ENV{VULKAN_SDK}/Bin/glslc.exe)
+
+file(GLOB SHADER_FILES 
+    ${SHADER_SRC_DIR}/*.rgen 
+    ${SHADER_SRC_DIR}/*.rchit 
+    ${SHADER_SRC_DIR}/*.rmiss
+    ${SHADER_SRC_DIR}/*.comp
+    ${SHADER_SRC_DIR}/*.glsl
+)
+
+file(MAKE_DIRECTORY ${SHADER_OUT_DIR})
+
+set(SPV "")
+foreach(SHADER ${SHADER_FILES})
+    get_filename_component(NAME ${SHADER} NAME)
+    
+
+    get_filename_component(EXT ${SHADER} EXT)
+    if(EXT STREQUAL ".glsl")
+        if(NAME MATCHES "vert\\.glsl$")
+            set(STAGE "vert")
+        elseif(NAME MATCHES "frag\\.glsl$")
+            set(STAGE "frag")
+        elseif(NAME MATCHES "comp\\.glsl$")
+            set(STAGE "comp")
+        elseif(NAME MATCHES "rgen\\.glsl$")
+            set(STAGE "rgen")
+        elseif(NAME MATCHES "rchit\\.glsl$")
+            set(STAGE "rchit")
+        elseif(NAME MATCHES "rmiss\\.glsl$")
+            set(STAGE "rmiss")
+        else()
+            message(FATAL_ERROR "Unknown shader stage for ${NAME}")
+        endif()
+    elseif(EXT STREQUAL ".rgen$")
+        set(STAGE "rgen")
+    elseif(EXT STREQUAL ".rchit$")
+        set(STAGE "rchit")
+    elseif(EXT STREQUAL ".rmiss$")
+        set(STAGE "rmiss")
+    elseif(EXT STREQUAL ".comp$")
+        set(STAGE "comp")
+    endif()
+
+    add_custom_command(
+        OUTPUT ${SHADER_OUT_DIR}/${NAME}.spv
+        COMMAND "${Vulkan_GLSLC_EXECUTABLE}" --target-env=vulkan1.4 -fshader-stage=${STAGE} -I ${SHADER_SRC_DIR} ${SHADER} -o ${SHADER_OUT_DIR}/${NAME}.spv
+        DEPENDS ${SHADER}
+        COMMENT "Compiling shader ${NAME} as ${STAGE}"
+    )
+    list(APPEND SPV ${SHADER_OUT_DIR}/${NAME}.spv)
+endforeach()
+        
+add_custom_target(shader DEPENDS ${SPV})
+
+# ============================================================================
+# Executable
+# ============================================================================
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
+add_dependencies(${PROJECT_NAME} shader)
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${SOURCE_DIR} ${stb_SOURCE_DIR})
 target_link_libraries(${PROJECT_NAME} PRIVATE glfw Vulkan::Vulkan glm::glm)

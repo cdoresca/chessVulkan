@@ -16,30 +16,47 @@ void app::build(){
 
     camera = buildCamera(glm::vec3(0.0f),glm::vec3(0.0f,0.0f,1.0f),glm::vec3(0.0f, 1.0f,0.0f));
 
-    IBuilder<VkContext>* ctxBuilder = new vulkanContextBuilder(m_window->getGLFW());
+	vulkanContextBuilder* ctxBuilder = new vulkanContextBuilder(m_window->getGLFW());
     director<VkContext> dir(ctxBuilder);
     dir.make();
     ctx = ctxBuilder->get();
 
-    IBuilder<VkDisplay>* displayBuilder = new vulkanDisplayBuilder(ctx, m_window->getGLFW());
+	vulkanDisplayBuilder* displayBuilder = new vulkanDisplayBuilder(ctx, m_window->getGLFW());
     director<VkDisplay> dirDisplay(displayBuilder);
     dirDisplay.make();
     display = displayBuilder->get();
 
     //shader
-    shader vertexShader(ctx,"shader/vert.glsl",VK_SHADER_STAGE_VERTEX_BIT);
-    shader fragmentShader(ctx,"shader/frag.glsl",VK_SHADER_STAGE_FRAGMENT_BIT);
+    shader vertexShader(ctx,"shader/vert.glsl.spv",VK_SHADER_STAGE_VERTEX_BIT);
+    shader fragmentShader(ctx, "shader/frag.glsl.spv",VK_SHADER_STAGE_FRAGMENT_BIT);
 
     //descriptor
     m_descriptor = new descriptor(ctx);
-	m_descriptor->addPushConstant(VK_SHADER_STAGE_VERTEX_BIT,sizeof(Camera)); 
+	m_descriptor->addPushConstant(VK_SHADER_STAGE_VERTEX_BIT,sizeof(Camera));
+
+	std::vector<VkDescriptorType> typeSet = { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER };
+	std::vector<VkShaderStageFlags> flagSet = { VK_SHADER_STAGE_VERTEX_BIT };
+	m_descriptor->addDescriptorSetLayout(typeSet, flagSet);
+
+	std::vector<VkDescriptorType> typeSet1 = { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER };
+	std::vector<VkShaderStageFlags> flagSet1 = { VK_SHADER_STAGE_FRAGMENT_BIT };
+	m_descriptor->addDescriptorSetLayout(typeSet1, flagSet1);
+
+	std::vector<VkDescriptorPoolSize> poolSizes = {
+			{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, MAX_FRAMES_IN_FLIGHT },
+			{ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, MAX_FRAMES_IN_FLIGHT },
+	};
+	m_descriptor->createDescriptorPool(poolSizes);
+	m_descriptor->allocateDescriptorSets();
 
     //command
     cmd = new VkCommand(ctx);
-
+	
     //pipeline
-    IBuilder<VkPipelineDescription>* pipelineBuilder = new vulkanPipelineBuilder(ctx,display,m_descriptor,{vertexShader,fragmentShader});
-	director<VkPipelineDescription> dirPipeline(pipelineBuilder);
+	vulkanPipelineBuilder* pipelineBuilder = new vulkanPipelineBuilder(ctx,display,m_descriptor);
+	pipelineBuilder->addShader(vertexShader);
+	pipelineBuilder->addShader(fragmentShader);
+	director<VkPipelineDescription> dirPipeline(pipelineBuilder);	
 	dirPipeline.make();
 	pipeline = pipelineBuilder->get();
 
@@ -81,11 +98,13 @@ void app::drawFrame(){
 
 	VK_CHECK(vkResetCommandBuffer(commands[currentFrame], 0));
 
-    beginRecordCommand(commands[imageIndex], imageIndex);
-    render(commands[imageIndex]);
-    endRecordCommand(commands[imageIndex], imageIndex);
+    beginRecordCommand(commands[currentFrame], imageIndex);
+    render(commands[currentFrame]);
+    endRecordCommand(commands[currentFrame]);
 
     VkSemaphore waitSemaphores[] = { imageAvailableSemaphores[currentFrame] };
+	VkSemaphore signalSemaphores[] = { renderFinishedSemaphores[imageIndex] };
+
 	VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 
 	VkSubmitInfo submitInfo{};
@@ -95,8 +114,6 @@ void app::drawFrame(){
 	submitInfo.pWaitDstStageMask = waitStages;
 	submitInfo.commandBufferCount = 1;
 	submitInfo.pCommandBuffers = &commands[currentFrame];
-
-	VkSemaphore signalSemaphores[] = { renderFinishedSemaphores[imageIndex] };
 	submitInfo.signalSemaphoreCount = 1;
 	submitInfo.pSignalSemaphores = signalSemaphores;
 
@@ -116,8 +133,8 @@ void app::drawFrame(){
 
 	result = vkQueuePresentKHR(ctx.presentQueue, &presentInfo);
 
-	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized) {
-		framebufferResized = false;
+	if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || m_window->framebufferResized) {
+		m_window->framebufferResized = false;
 		recreateSwapChain();
 	}
 	else if (result != VK_SUCCESS) {
@@ -210,7 +227,7 @@ void app::beginRecordCommand(VkCommandBuffer cmd, uint32_t imageIndex){
 
 }
 
-void app::endRecordCommand(VkCommandBuffer cmd, uint32_t index){
+void app::endRecordCommand(VkCommandBuffer cmd){
     vkCmdEndRenderPass(cmd);
 	VK_CHECK(vkEndCommandBuffer(cmd));
 
@@ -245,6 +262,7 @@ void app::run(){
 		glfwPollEvents();
 		drawFrame();
 	}
+	vkDeviceWaitIdle(ctx.device);
 	
 }
 

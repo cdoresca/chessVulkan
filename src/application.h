@@ -28,7 +28,7 @@ class app{
 
     uint32_t currentFrame;
 
-    bool framebufferResized;
+  
 
     void build();
     void drawFrame();
@@ -36,7 +36,7 @@ class app{
     void createSyncObjects();
     void createCmdBuffer();
     void beginRecordCommand(VkCommandBuffer cmd, uint32_t imageIndex);
-    void endRecordCommand(VkCommandBuffer cmd, uint32_t imageIndex);
+    void endRecordCommand(VkCommandBuffer cmd);
     void recreateSwapChain();
     void cleanup();
     void addModels();

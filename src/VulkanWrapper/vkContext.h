@@ -35,10 +35,6 @@ const std::vector<const char*> validationLayers = {
 
 };
 
-const std::vector<const char*> deviceExtensions = {
-	VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-};
-
 const std::vector<VkValidationFeatureEnableEXT> enables = {
 	VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT,
 	VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT
@@ -97,7 +93,9 @@ class vulkanContextBuilder: public IBuilder<VkContext>
     VkPhysicalDeviceFeatures2 feature2;
 	VkPhysicalDeviceFeatures feature;
 
-    std::vector<const char*> deviceExtensions;
+    std::vector<const char*> deviceExtensions = {
+        VK_KHR_SWAPCHAIN_EXTENSION_NAME
+    };
     std::vector<VkBaseOutStructure*> deviceFeature;
 
     float priorityQueue = 1.0f;

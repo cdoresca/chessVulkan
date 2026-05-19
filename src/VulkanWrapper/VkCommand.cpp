@@ -1,6 +1,9 @@
 #include "VkCommand.h"
+#include "queueFamily.h"
 
-VkCommand::VkCommand(VkContext ctx):context(ctx){}
+VkCommand::VkCommand(VkContext ctx) :context(ctx) { createCmdPool(); }
+
+VkCommand::~VkCommand() { cleanup(); }
 
 VkCommandBuffer createTmpCommandBuffer(const VkContext& context,VkCommandPool pool,VkCommandBufferUsageFlags flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT, VkCommandBufferInheritanceInfo* info = nullptr){
     VkCommandBuffer tmp;
@@ -107,4 +110,15 @@ VkCommandPool VkCommand::getPool() const { return pool;}
 
 void VkCommand::cleanup(){
 	vkDestroyCommandPool(context.device,pool,nullptr);
+}
+
+void VkCommand::createCmdPool() {
+	QueueFamiliesIndices queueFamilyIndices = findQueueFamilies(context.physicalDevice, context.surface);
+
+	VkCommandPoolCreateInfo poolInfo{};
+	poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+	poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+	poolInfo.queueFamilyIndex = queueFamilyIndices.graphicFamily.value();
+
+	VK_CHECK(vkCreateCommandPool(context.device, &poolInfo, nullptr, &pool));
 }

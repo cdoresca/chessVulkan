@@ -1,9 +1,10 @@
 #include "shader.h"
+//#include <filesystem>
 
 std::vector<char> readFile(const char* filename)
 {
 	std::ifstream file(filename, std::ios::ate | std::ios::binary);
-
+	//std::cout << std::filesystem::current_path() << std::endl;
 	if (!file.is_open()) {
 		throw std::runtime_error("failed to open file!");
 	}

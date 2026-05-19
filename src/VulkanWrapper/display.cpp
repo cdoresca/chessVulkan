@@ -69,7 +69,7 @@ void vulkanDisplayBuilder::createSwapChain() {
 }
 
 void  vulkanDisplayBuilder::createImageViews() {
-	display.view.resize(display.view.size());
+	display.view.resize(display.image.size());
 
 	for (size_t i = 0; i < display.image.size(); i++) {
 
@@ -114,11 +114,11 @@ void vulkanDisplayBuilder::createFramebuffers() {
 void createAttachementDescription(VkFormat format, VkAttachmentDescription& colorAttachment){
 	colorAttachment.format = format;
 	colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-	colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+	colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 	colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
 	colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
 	colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-	colorAttachment.initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+	colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 	colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
 }
@@ -183,16 +183,12 @@ vulkanDisplayBuilder::vulkanDisplayBuilder(VkContext ctx,GLFWwindow* window):con
 
 void destroyVkDisplay(VkContext ctx,VkDisplay display){
 
-	vkDestroySwapchainKHR(ctx.device, display.swapChain,nullptr);
-	vkDestroyRenderPass(ctx.device,display.renderPass,nullptr);
-
-	for(int i = 0; i < display.image.size(); i++)
-		vkDestroyImage(ctx.device,display.image[i],nullptr);
+	for(int i = 0; i < display.frameBuffer.size(); i++)
+		vkDestroyFramebuffer(ctx.device,display.frameBuffer[i],nullptr);
 
 	for(int i = 0; i < display.view.size(); i++)
 		vkDestroyImageView(ctx.device,display.view[i],nullptr);
 	
-	for(int i = 0; i < display.frameBuffer.size(); i++)
-		vkDestroyFramebuffer(ctx.device,display.frameBuffer[i],nullptr);
-	
+	vkDestroyRenderPass(ctx.device,display.renderPass,nullptr);
+	vkDestroySwapchainKHR(ctx.device, display.swapChain,nullptr);
 }

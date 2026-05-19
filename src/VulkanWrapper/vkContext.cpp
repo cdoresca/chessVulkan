@@ -118,13 +118,14 @@ void vulkanContextBuilder::setupDebugMessenger(){
 	VK_CHECK(CreateDebugUtilsMessengerEXT(context.instance, &createInfo, nullptr, &context.debugMessenger));
 }
 
-void vulkanContextBuilder::createSurface(){ VK_CHECK(glfwCreateWindowSurface(context.instance, window, nullptr, &context.surface));}
+void vulkanContextBuilder::createSurface(){ 
+	VK_CHECK(glfwCreateWindowSurface(context.instance, window, nullptr, &context.surface));
+}
 
 bool vulkanContextBuilder::isDeviceSuitable(const VkPhysicalDevice gpu) { 
     return isQueueSuitable(gpu) && 
         isExtensionSuitable(gpu) && 
         isSwapChainSuitable(gpu) && 
-        isModernFeatureSuitable(gpu) && 
         isFeatureSuitable(gpu); 
 }
 
@@ -213,7 +214,7 @@ void vulkanContextBuilder::choosePhysicalDevice()
 
     VK_CHECK(vkEnumeratePhysicalDevices(context.instance, &deviceCount, nullptr));
 
-    vector<VkPhysicalDevice> devices(deviceCount);
+    std::vector<VkPhysicalDevice> devices(deviceCount);
     VK_CHECK(vkEnumeratePhysicalDevices(context.instance, &deviceCount, devices.data()));
 
     for (const auto& gpu : devices) {
@@ -224,11 +225,11 @@ void vulkanContextBuilder::choosePhysicalDevice()
     }
 }
 
-void vulkanContextBuilder::createInfoQueue(vector<VkDeviceQueueCreateInfo>& info)
+void vulkanContextBuilder::createInfoQueue(std::vector<VkDeviceQueueCreateInfo>& info)
 {
     QueueFamiliesIndices indices = findQueueFamilies(context.physicalDevice, context.surface);
 
-	set<uint32_t> uniqueQueueFamilies = { indices.graphicFamily.value(), indices.presentFamily.value() };
+	std::set<uint32_t> uniqueQueueFamilies = { indices.graphicFamily.value(), indices.presentFamily.value() };
 	
 	for (uint32_t queueFamily : uniqueQueueFamilies) {
 		VkDeviceQueueCreateInfo	queueCreateInfo{};
@@ -243,14 +244,14 @@ void vulkanContextBuilder::createInfoQueue(vector<VkDeviceQueueCreateInfo>& info
 void vulkanContextBuilder::createDevice()
 {
 
-	vector<VkDeviceQueueCreateInfo> queueCreateInfos;
+	std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
 	createInfoQueue(queueCreateInfos);
 
 	VkDeviceCreateInfo createInfo{};
 	createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 	createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
 	createInfo.pQueueCreateInfos = queueCreateInfos.data();
-	createInfo.pNext = &feature2;
+	createInfo.pNext = nullptr;
 	createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
 	createInfo.ppEnabledExtensionNames = deviceExtensions.data();
 	if (enableValidationLayers)

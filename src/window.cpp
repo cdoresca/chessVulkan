@@ -1,7 +1,9 @@
 #include"window.h"
 
 window::window(){
+    framebufferResized = false;
     glfwInit();
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     m_window = glfwCreateWindow(800, 600, "Chess", NULL, NULL);
     glfwSetWindowUserPointer(m_window, this);
 	glfwSetFramebufferSizeCallback(m_window, framebufferResizeCallback);

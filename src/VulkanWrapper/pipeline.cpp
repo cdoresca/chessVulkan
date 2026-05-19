@@ -1,9 +1,8 @@
 #include "pipeline.h"
 #include "vertex.h"
 
-vulkanPipelineBuilder::vulkanPipelineBuilder(const VkContext& ctx, const VkDisplay& display, descriptor* d,std::vector<shader> s):ctx(ctx),display(display),m_descriptor(d){
-	for(int i = 0; i <s.size(); i++)
-		addShader(s[i]);
+vulkanPipelineBuilder::vulkanPipelineBuilder(const VkContext& ctx, const VkDisplay& display, descriptor* d):ctx(ctx),display(display),m_descriptor(d){
+	
 }
 
 void  vulkanPipelineBuilder::createPipeline() {
@@ -103,7 +102,7 @@ void  vulkanPipelineBuilder::createPipeline() {
 }
 
 
-void vulkanPipelineBuilder::addShader(shader obj){ shaderStages.push_back(obj.getPipelineShader());}
+void vulkanPipelineBuilder::addShader(const shader& obj){ shaderStages.push_back(obj.getPipelineShader());}
 
 void vulkanPipelineBuilder::createPipelineLayout(){
 

@@ -7,9 +7,11 @@ class VkCommand
     VkCommandPool pool;
 
     VkContext context;
+    void createCmdPool();
     void cleanup();
     public:
         VkCommand(VkContext ctx);
+        ~VkCommand();
         VkCommandBuffer createCmdBuffer() const;
         void submitCmdBuffer(VkCommandBuffer cmd, bool free = true) const;
         VkCommandPool getPool() const;

@@ -11,9 +11,9 @@ layout(push_constant,std430) uniform camera{
     mat4 proj;
 };
 
-layout(binding = 0) uniform uniformModel{
+layout(set = 0, binding = 0) uniform uniformModel{
     mat4 model;
-}
+};
 
 void main(){
 

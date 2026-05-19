@@ -24,13 +24,13 @@ class vulkanPipelineBuilder: public IBuilder<VkPipelineDescription>{
 
 	void createPipelineLayout();
 	void createPipeline();
-	void addShader(shader obj);
 	
 	public:
-		vulkanPipelineBuilder(const VkContext& ctx, const VkDisplay& display, descriptor* d,std::vector<shader> s);
+		vulkanPipelineBuilder(const VkContext& ctx, const VkDisplay& display, descriptor* d);
 	
 		void reset() override;
 		void build() override;
+		void addShader(const shader& obj);
 		VkPipelineDescription get() override;
 };
 

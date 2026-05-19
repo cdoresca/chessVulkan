@@ -32,7 +32,9 @@ class shader {
 	
 	~shader();
 
-
+	void debug() const {
+		std::cout << "shaderModule = " << shaderModule << std::endl;
+	}
 
 		VkPipelineShaderStageCreateInfo getPipelineShader()const;
 
