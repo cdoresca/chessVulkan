@@ -152,3 +152,4 @@ void descriptor::updateTexture(Texture texel){
 VkDescriptorSet descriptor::getSet(uint32_t index,uint32_t offset) const{
 	return descriptorSet[setLayout.size() * index + offset];
 }
+

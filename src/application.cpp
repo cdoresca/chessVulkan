@@ -100,7 +100,7 @@ void app::drawFrame(){
 	VK_CHECK(vkResetCommandBuffer(commands[currentFrame], 0));
 
     beginRecordCommand(commands[currentFrame], imageIndex);
-    render(commands[currentFrame]);
+    render(commands[currentFrame],currentFrame);
     endRecordCommand(commands[currentFrame]);
 
     VkSemaphore waitSemaphores[] = { imageAvailableSemaphores[currentFrame] };
@@ -184,9 +184,9 @@ void app::createCmdBuffer(){
     }
 }
 
-void app::render(VkCommandBuffer cmd){
+void app::render(VkCommandBuffer cmd, uint32_t frameIndex){
     for(int i = 0; i < models.size(); i++){
-        models[i]->render(cmd);
+        models[i]->render(cmd, frameIndex,m_descriptor);
     }
 }
 

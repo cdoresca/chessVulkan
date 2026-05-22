@@ -112,3 +112,23 @@ void destroyBuffer(VkContext ctx, Buffer buffer){
 	vkDestroyBuffer(ctx.device,buffer.buffer,nullptr);
 	vkFreeMemory(ctx.device, buffer.memory, nullptr);
 }
+
+void updateSetUniformBuffer(const VkContext& ctx,VkDescriptorSet set, Buffer buffer)
+{
+	VkDescriptorBufferInfo descriptorBuffer{};
+	descriptorBuffer.buffer = buffer.buffer;
+	descriptorBuffer.offset = 0;
+	descriptorBuffer.range = VK_WHOLE_SIZE;
+
+	VkWriteDescriptorSet write{};
+	write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+	write.pNext = nullptr;
+	write.dstSet = set;
+	write.dstBinding = 0;
+	write.dstArrayElement = 0;
+	write.descriptorCount = 1;
+	write.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	write.pBufferInfo = &descriptorBuffer;
+
+	vkUpdateDescriptorSets(ctx.device, 1, &write, 0, VK_NULL_HANDLE);
+}

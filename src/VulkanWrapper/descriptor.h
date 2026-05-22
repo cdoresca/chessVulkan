@@ -18,13 +18,14 @@ class descriptor{
 	VkDescriptorPool pool;
 	VkContext context;
 
-	VkDescriptorSet getSet(uint32_t index,uint32_t offset = 0) const;
 
 	void cleanup();
 
 	public:
 		descriptor(VkContext context);
 		~descriptor();
+
+		VkDescriptorSet getSet(uint32_t index,uint32_t offset = 0) const;
 
 		std::vector<VkDescriptorSet> descriptorSet;
 		std::vector<VkDescriptorSetLayout> setLayout;
@@ -39,3 +40,4 @@ class descriptor{
 		void updateTexture(Texture texel);
 		
 };
+

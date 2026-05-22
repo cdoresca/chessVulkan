@@ -3,6 +3,7 @@
 model::model(renderer* r): render_(r){
     vertices = quad();
     verticesBuffer = render_->uploadVertex(vertices);
+    matrix = glm::mat4(1.0f);
 }
 
 std::vector<Vertex> quad(uint32_t height,uint32_t width)

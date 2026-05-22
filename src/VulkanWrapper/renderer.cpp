@@ -5,3 +5,8 @@ renderer::renderer(const VkContext& context,VkCommand* cmd):context(context),cmd
 Buffer renderer::uploadVertex(const std::vector<Vertex>& vertices){ return createVertexBuffer(context, cmd,  vertices); }
 
 Texture renderer::uploadTexture(const char* path){ return createTexture(context,path, cmd); }
+
+void renderer::updateSetUBuffer(VkDescriptorSet set, Buffer matrixBuffer)
+{
+	updateSetUniformBuffer(context, set, matrixBuffer);
+}

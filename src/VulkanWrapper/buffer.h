@@ -18,4 +18,6 @@ Buffer createIndexBuffer(const VkContext& context, VkCommand* cmd, const std::ve
 
 VkDeviceAddress queryBufferAddress(VkContext& context, VkBuffer other);
 
+void updateSetUniformBuffer(const VkContext& ctx, VkDescriptorSet set, Buffer buffer);
+
 void destroyBuffer(VkContext ctx, Buffer buffer);

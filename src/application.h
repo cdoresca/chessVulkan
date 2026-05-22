@@ -32,7 +32,7 @@ class app{
     void buildDevice();
     void build();
     void drawFrame();
-    void render(VkCommandBuffer cmd);
+    void render(VkCommandBuffer cmd, uint32_t frameIndex);
     void createSyncObjects();
     void createCmdBuffer();
     void beginRecordCommand(VkCommandBuffer cmd, uint32_t imageIndex);
