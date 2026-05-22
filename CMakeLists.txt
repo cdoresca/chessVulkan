@@ -70,7 +70,7 @@ endforeach()
 
 set(SHADER_SRC_DIR ${SOURCE_DIR}/shader)
 set(SHADER_OUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/shader)
-set(Vulkan_GLSLC_EXECUTABLE $ENV{VULKAN_SDK}/Bin/glslc.exe)
+find_program(GLSLC glslc REQUIRED)
 
 file(GLOB SHADER_FILES 
     ${SHADER_SRC_DIR}/*.rgen 
@@ -104,19 +104,19 @@ foreach(SHADER ${SHADER_FILES})
         else()
             message(FATAL_ERROR "Unknown shader stage for ${NAME}")
         endif()
-    elseif(EXT STREQUAL ".rgen$")
+    elseif(EXT STREQUAL ".rgen")
         set(STAGE "rgen")
-    elseif(EXT STREQUAL ".rchit$")
+    elseif(EXT STREQUAL ".rchit")
         set(STAGE "rchit")
-    elseif(EXT STREQUAL ".rmiss$")
+    elseif(EXT STREQUAL ".rmiss")
         set(STAGE "rmiss")
-    elseif(EXT STREQUAL ".comp$")
+    elseif(EXT STREQUAL ".comp")
         set(STAGE "comp")
     endif()
 
     add_custom_command(
         OUTPUT ${SHADER_OUT_DIR}/${NAME}.spv
-        COMMAND "${Vulkan_GLSLC_EXECUTABLE}" --target-env=vulkan1.4 -fshader-stage=${STAGE} -I ${SHADER_SRC_DIR} ${SHADER} -o ${SHADER_OUT_DIR}/${NAME}.spv
+        COMMAND "${GLSCL}" --target-env=vulkan1.4 -fshader-stage=${STAGE} -I ${SHADER_SRC_DIR} ${SHADER} -o ${SHADER_OUT_DIR}/${NAME}.spv
         DEPENDS ${SHADER}
         COMMENT "Compiling shader ${NAME} as ${STAGE}"
     )
