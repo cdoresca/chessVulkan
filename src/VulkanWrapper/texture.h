@@ -13,4 +13,6 @@ struct Texture {
 
 Texture createTexture(const VkContext context, const char* path, VkCommand* cmd);
 
+void updateSetTexture(const VkContext& ctx, VkDescriptorSet set, Texture texel);
+
 void destroyTexture(VkContext ctx,Texture texel);

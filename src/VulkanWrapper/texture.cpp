@@ -241,5 +241,27 @@ Texture createTexture(VkContext context, const char* path, VkCommand* cmd){
 
 	VK_CHECK(vkCreateSampler(context.device, &samplerInfo, nullptr, &texel.sample));
 
+	destroyBuffer(context, stagging);
+
 	return texel;
+}
+
+void updateSetTexture(const VkContext& ctx, VkDescriptorSet set, Texture texel)
+{
+	VkDescriptorImageInfo descriptorTexture{};
+	descriptorTexture.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+	descriptorTexture.imageView = texel.view;
+	descriptorTexture.sampler = texel.sample;
+
+	VkWriteDescriptorSet write{};
+	write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+	write.pNext = nullptr;
+	write.dstSet = set;
+	write.dstBinding = 0;
+	write.dstArrayElement = 0;
+	write.descriptorCount = 1;
+	write.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	write.pImageInfo = &descriptorTexture;
+
+	vkUpdateDescriptorSets(ctx.device, 1, &write, 0, VK_NULL_HANDLE);
 }

@@ -1,8 +1,8 @@
 #include "cellUI.h"
 
-cellUI::cellUI(renderer* render):model(render){
+cellUI::cellUI(VkContext ctx, VkPipelineDescription pipeline, VkCommand* command):model(ctx, pipeline, command){
 
-    texel = render_->uploadTexture(IMAGE_DIR"/square brown dark_1x_ns.png");
+    //texel = createTexture(ctx,IMAGE_DIR"/square brown dark_1x_ns.png",cmd);
 }
 
 void cellUI::render(VkCommandBuffer cmd, uint32_t frameIndex,descriptor* desc) const
@@ -11,10 +11,10 @@ void cellUI::render(VkCommandBuffer cmd, uint32_t frameIndex,descriptor* desc) c
     vkCmdBindVertexBuffers(cmd, 0, 1, &verticesBuffer.buffer,&offset);
     VkDescriptorSet set[] = {
         desc->getSet(frameIndex),
-        desc->getSet(frameIndex,1)
+        //desc->getSet(frameIndex,1)
     };
-    render_->updateSetUBuffer(set[0], matrixBuffer);
-    render_->updateTexture(set[1],texel);
+    updateSetUniformBuffer(ctx, set[0], matrixBuffer);
+    //updateSetTexture(ctx,set[1],texel);
 
     vkCmdBindDescriptorSets(cmd,
         VK_PIPELINE_BIND_POINT_GRAPHICS,

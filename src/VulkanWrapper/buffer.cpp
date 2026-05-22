@@ -132,3 +132,11 @@ void updateSetUniformBuffer(const VkContext& ctx,VkDescriptorSet set, Buffer buf
 
 	vkUpdateDescriptorSets(ctx.device, 1, &write, 0, VK_NULL_HANDLE);
 }
+
+Buffer createUnifomBuffer(const VkContext& context, VkCommand* cmd, VkDeviceSize size) {
+	Buffer b = createBuffer(context,size, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+
+	vkMapMemory(context.device, b.memory, 0, size, 0, &b.data);
+
+	return b;
+}

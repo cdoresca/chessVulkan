@@ -6,7 +6,16 @@ Camera buildCamera(glm::vec3 pos,glm::vec3 look,glm::vec3 up){
 
     cam.view = glm::lookAt(pos,look,up);
 
-    cam.proj = glm::ortho(0.0f,400.0f,400.0f,0.0f,0.1f,100.0f);
+    cam.proj = glm::ortho(
+            -200.0f,
+            200.0f,
+            -200.0f,
+            200.0f,
+            0.1f,
+            100.0f
+        );
+
+    cam.proj[1][1] *= -1;
 
     return cam;
 }

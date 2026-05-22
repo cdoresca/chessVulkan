@@ -15,6 +15,7 @@ std::vector<const char*> getRequiredExtensions()
 
 	if (enableValidationLayers) {
 		extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+		extensions.push_back(VK_EXT_VALIDATION_FEATURES_EXTENSION_NAME);
 	}
 
 	return extensions;
@@ -48,6 +49,7 @@ void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& create
 	createInfo.messageSeverity =
 		VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
 		VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
+		VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT |
 		VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
 	createInfo.messageType =
 		VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
@@ -81,8 +83,8 @@ void vulkanContextBuilder::createInstance(){
 
     VkValidationFeaturesEXT features{};
 	features.sType = VK_STRUCTURE_TYPE_VALIDATION_FEATURES_EXT;
-	features.enabledValidationFeatureCount = enables.size();
-	features.pEnabledValidationFeatures = enables.data();
+	features.enabledValidationFeatureCount = validationFeature.size();
+	features.pEnabledValidationFeatures = validationFeature.data();
 
     std::vector<const char*> extensions = getRequiredExtensions();
     
@@ -97,7 +99,7 @@ void vulkanContextBuilder::createInstance(){
 	if (enableValidationLayers)
 	{
 		populateDebugMessengerCreateInfo(debugCreateInfo);
-
+		debugCreateInfo.pNext = &features;
 		createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
 		createInfo.ppEnabledLayerNames = validationLayers.data();
 		createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT*)&debugCreateInfo;

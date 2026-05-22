@@ -122,33 +122,6 @@ descriptor::~descriptor()
 	cleanup();
 }
 
-
-
-void descriptor::updateTexture(Texture texel){
-	VkDescriptorImageInfo imageInfo{};    
-	imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-	imageInfo.imageView = texel.view;
-	imageInfo.sampler = texel.sample;
-
-	VkWriteDescriptorSet writeDescriptor{};
-
-	for(int i = 0; i < MAX_FRAMES_IN_FLIGHT; i++){
-		
-		VkDescriptorSet set = getSet(i);
-
-		VkWriteDescriptorSet writeDescriptor{};
-		writeDescriptor.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-		writeDescriptor.dstSet = set;
-		writeDescriptor.dstBinding = 0;
-		writeDescriptor.dstArrayElement = 0;
-		writeDescriptor.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		writeDescriptor.descriptorCount = 1;
-		writeDescriptor.pImageInfo = &imageInfo;
-
-		vkUpdateDescriptorSets(context.device, 1, &writeDescriptor, 0, nullptr);
-	}
-}
-
 VkDescriptorSet descriptor::getSet(uint32_t index,uint32_t offset) const{
 	return descriptorSet[setLayout.size() * index + offset];
 }

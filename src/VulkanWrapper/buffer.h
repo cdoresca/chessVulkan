@@ -14,6 +14,7 @@ struct Buffer
 
 Buffer createBuffer(const VkContext& context,const VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties);
 Buffer createVertexBuffer(const VkContext& context, VkCommand* cmd, const std::vector<Vertex>&);
+Buffer createUnifomBuffer(const VkContext& context, VkCommand* cmd, VkDeviceSize size);
 Buffer createIndexBuffer(const VkContext& context, VkCommand* cmd, const std::vector<uint32_t>&);
 
 VkDeviceAddress queryBufferAddress(VkContext& context, VkBuffer other);

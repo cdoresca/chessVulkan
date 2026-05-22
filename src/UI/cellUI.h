@@ -6,6 +6,6 @@ class cellUI: public model{
 
 
     public:
-        cellUI(renderer* r);
+        cellUI(VkContext ctx, VkPipelineDescription pipeline, VkCommand* command);
         void render(VkCommandBuffer cmd, uint32_t frameIndex , descriptor* desc) const override;
 };

@@ -16,7 +16,7 @@ class app{
     descriptor* m_descriptor;
     VkPipelineDescription pipeline;
     Camera camera;
-    renderer* m_render;
+   
     
     game chess;
 

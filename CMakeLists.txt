@@ -116,7 +116,7 @@ foreach(SHADER ${SHADER_FILES})
 
     add_custom_command(
         OUTPUT ${SHADER_OUT_DIR}/${NAME}.spv
-        COMMAND "${GLSCL}" --target-env=vulkan1.4 -fshader-stage=${STAGE} -I ${SHADER_SRC_DIR} ${SHADER} -o ${SHADER_OUT_DIR}/${NAME}.spv
+        COMMAND "${GLSLC}" --target-env=vulkan1.4 -fshader-stage=${STAGE} -I ${SHADER_SRC_DIR} ${SHADER} -o ${SHADER_OUT_DIR}/${NAME}.spv
         DEPENDS ${SHADER}
         COMMENT "Compiling shader ${NAME} as ${STAGE}"
     )

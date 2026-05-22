@@ -15,7 +15,7 @@ void app::build(){
     
     m_window = new window();
 
-    camera = buildCamera(glm::vec3(0.0f),glm::vec3(0.0f,0.0f,1.0f),glm::vec3(0.0f, 1.0f,0.0f));
+    camera = buildCamera(glm::vec3(0.0f,0.0f,-10.0f),glm::vec3(0.0f,0.0f,1.0f),glm::vec3(0.0f, 1.0f,0.0f));
 
 	
 	buildDevice();
@@ -36,14 +36,14 @@ void app::build(){
 	std::vector<VkDescriptorType> typeSet = { VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER };
 	std::vector<VkShaderStageFlags> flagSet = { VK_SHADER_STAGE_VERTEX_BIT };
 	m_descriptor->addDescriptorSetLayout(typeSet, flagSet);
-
+/*
 	std::vector<VkDescriptorType> typeSet1 = { VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER };
 	std::vector<VkShaderStageFlags> flagSet1 = { VK_SHADER_STAGE_FRAGMENT_BIT };
 	m_descriptor->addDescriptorSetLayout(typeSet1, flagSet1);
-
+*/
 	std::vector<VkDescriptorPoolSize> poolSizes = {
-			{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, MAX_FRAMES_IN_FLIGHT },
-			{ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, MAX_FRAMES_IN_FLIGHT },
+			{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, MAX_FRAMES_IN_FLIGHT }
+			//{ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, MAX_FRAMES_IN_FLIGHT }
 	};
 	m_descriptor->createDescriptorPool(poolSizes);
 	m_descriptor->allocateDescriptorSets();
@@ -59,7 +59,7 @@ void app::build(){
 	dirPipeline.make();
 	pipeline = pipelineBuilder->get();
 
-	m_render = new renderer(ctx,cmd);
+
     createSyncObjects();
     createCmdBuffer();
 
@@ -212,6 +212,8 @@ void app::beginRecordCommand(VkCommandBuffer cmd, uint32_t imageIndex){
 
 	vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline.graphicsPipeline);
 
+	vkCmdPushConstants(cmd, pipeline.pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(Camera), &camera);
+
 	VkViewport viewport{};
 	viewport.x = 0.0f;
 	viewport.y = 0.0f;
@@ -254,7 +256,7 @@ void app::cleanup(){
 }
 
 void app::addModels(){
-	models.push_back(new cellUI(m_render));
+	models.push_back(new cellUI(ctx, pipeline, cmd));
 }
 
 void app::run(){

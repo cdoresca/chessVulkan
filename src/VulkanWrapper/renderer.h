@@ -15,8 +15,8 @@ class renderer {
 
 		Buffer uploadVertex(const std::vector<Vertex>& vertices);
 		Texture uploadTexture(const char*);
+		Buffer uploadMatrix(VkDeviceSize size);
 
 		void updateSetUBuffer(VkDescriptorSet set, Buffer matrixBuffer);
 		void updateTexture(VkDescriptorSet set, Texture texel);
-		
 };

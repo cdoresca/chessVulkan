@@ -31,15 +31,18 @@ const bool enableValidationLayers = true;
 
 std::vector<const char*> getRequiredExtensions();
 
+const std::vector<VkValidationFeatureEnableEXT> validationFeature = {
+    VK_VALIDATION_FEATURE_ENABLE_BEST_PRACTICES_EXT,
+    VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION_EXT
+};
+
 const std::vector<const char*> validationLayers = {
-	"VK_LAYER_KHRONOS_validation"
+	"VK_LAYER_KHRONOS_validation",
+    "VK_EXT_validation_features"
 
 };
 
-const std::vector<VkValidationFeatureEnableEXT> enables = {
-	VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT,
-	VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT
-};
+
 
 VkResult CreateDebugUtilsMessengerEXT(VkInstance instance,
 	const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,

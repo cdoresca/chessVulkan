@@ -1,23 +1,31 @@
 #pragma once 
 #include"vertex.h"
-#include "renderer.h"
+#include "buffer.h"
+#include "pipeline.h"
 
 
 
 
 class model{
 
+    void cleanup();
+
     protected: 
-        renderer* render_;
+        VkContext ctx;
+        VkPipelineDescription pipeline;
+        VkCommand* cmd;
+
         std::vector<Vertex> vertices;
         Buffer verticesBuffer;
+
         Texture texel;
+
         glm::mat4 matrix;
         Buffer matrixBuffer;
-        VkPipelineDescription pipeline;
 
     public:
-        model(renderer* render);
+        model(VkContext ctx, VkPipelineDescription pipeline, VkCommand* command);
+        ~model();
         virtual void render(VkCommandBuffer cmd, uint32_t frameIndex, descriptor* desc)const = 0;
 
 };
