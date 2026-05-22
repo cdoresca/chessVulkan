@@ -7,6 +7,7 @@
 
 #include"IBuilder.h"
 #include<GLFW/glfw3.h>
+#include "physicalDeviceInformation.h"
 
 #ifdef NDEBUG
 const bool enableValidationLayers = false;
@@ -90,20 +91,17 @@ class vulkanContextBuilder: public IBuilder<VkContext>
     VkContext context;
     GLFWwindow* window;
 
-    VkPhysicalDeviceFeatures2 feature2;
-	VkPhysicalDeviceFeatures feature;
+    VkPhysicalDeviceFeatures2 features2;
 
-    std::vector<const char*> deviceExtensions = {
-        VK_KHR_SWAPCHAIN_EXTENSION_NAME
-    };
-    std::vector<VkBaseOutStructure*> deviceFeature;
+    std::vector<const char*> deviceExtensions;
+    std::vector<PhysicalDeviceFeature> featureBasic;
 
     float priorityQueue = 1.0f;
 
     void createInfoQueue(std::vector<VkDeviceQueueCreateInfo>& info);
     
     bool isDeviceSuitable(const VkPhysicalDevice gpu);
-    bool isFeatureSuitable(const VkPhysicalDevice gpu) const;
+    bool isFeatureSuitable(VkPhysicalDeviceFeatures features) const;
     bool isQueueSuitable(const VkPhysicalDevice gpu) const;
     bool isSwapChainSuitable(const VkPhysicalDevice gpu) const;
     bool isExtensionSuitable(const VkPhysicalDevice gpu) const;
@@ -118,7 +116,7 @@ class vulkanContextBuilder: public IBuilder<VkContext>
     public:
     
     
-        vulkanContextBuilder(GLFWwindow* window);
+        vulkanContextBuilder(GLFWwindow* window,const std::vector<PhysicalDeviceFeature>& featureBasic, std::vector<const char*> deviceExtensions, VkPhysicalDeviceFeatures2 features2);
         
         void reset() override;
         void build() override;

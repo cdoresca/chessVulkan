@@ -67,7 +67,8 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBits
 }
 
 
-vulkanContextBuilder::vulkanContextBuilder(GLFWwindow* window):window(window){}
+vulkanContextBuilder::vulkanContextBuilder(GLFWwindow* window, const std::vector<PhysicalDeviceFeature>& featureBasic, std::vector<const char*> deviceExtensions,VkPhysicalDeviceFeatures2 features2):
+	window(window),featureBasic(featureBasic), deviceExtensions(deviceExtensions), features2(features2) { }
 
 void vulkanContextBuilder::createInstance(){
 
@@ -125,8 +126,8 @@ void vulkanContextBuilder::createSurface(){
 bool vulkanContextBuilder::isDeviceSuitable(const VkPhysicalDevice gpu) { 
     return isQueueSuitable(gpu) && 
         isExtensionSuitable(gpu) && 
-        isSwapChainSuitable(gpu) && 
-        isFeatureSuitable(gpu); 
+        isSwapChainSuitable(gpu) &&
+		isModernFeatureSuitable(gpu);
 }
 
 bool vulkanContextBuilder::isExtensionSuitable(const VkPhysicalDevice gpu) const
@@ -139,21 +140,23 @@ bool vulkanContextBuilder::isExtensionSuitable(const VkPhysicalDevice gpu) const
     
 	std::set<std::string> requiredExtensions(deviceExtensions.begin(), deviceExtensions.end());
 	for (const auto& extension : availableExtensions)
-    requiredExtensions.erase(extension.extensionName);
+		requiredExtensions.erase(extension.extensionName);
     
 	return requiredExtensions.empty();
 }
 bool vulkanContextBuilder::isModernFeatureSuitable(const VkPhysicalDevice gpu)
 {
-    vkGetPhysicalDeviceFeatures2(gpu, &feature2);
-	for (void* ft: deviceFeature) {
-        auto* base = reinterpret_cast<VkBaseOutStructure*>(ft);
+	vkGetPhysicalDeviceFeatures2(gpu, &features2);
+
+	auto* base = reinterpret_cast<VkBaseOutStructure*>(features2.pNext);
+	while(base != nullptr) {
+        
 
         switch (base->sType)
         {
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_FEATURES_KHR:
             {
-                auto* asf = reinterpret_cast<VkPhysicalDeviceAccelerationStructureFeaturesKHR*>(ft);
+                auto* asf = reinterpret_cast<VkPhysicalDeviceAccelerationStructureFeaturesKHR*>(base);
                 if (!asf->accelerationStructure)
                     return false;
                 break;
@@ -161,7 +164,7 @@ bool vulkanContextBuilder::isModernFeatureSuitable(const VkPhysicalDevice gpu)
 
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_FEATURES_KHR:
             {
-                auto* rtf = reinterpret_cast<VkPhysicalDeviceRayTracingPipelineFeaturesKHR*>(ft);
+                auto* rtf = reinterpret_cast<VkPhysicalDeviceRayTracingPipelineFeaturesKHR*>(base);
                 if (!rtf->rayTracingPipeline)
                     return false;
                 break;
@@ -169,14 +172,14 @@ bool vulkanContextBuilder::isModernFeatureSuitable(const VkPhysicalDevice gpu)
 
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES:
             {
-                auto* bda = reinterpret_cast<VkPhysicalDeviceBufferDeviceAddressFeatures*>(ft);
+                auto* bda = reinterpret_cast<VkPhysicalDeviceBufferDeviceAddressFeatures*>(base);
                 if (!bda->bufferDeviceAddress)
                     return false;
                 break;
             }
             case VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES: 
             {
-                auto* index = reinterpret_cast<VkPhysicalDeviceDescriptorIndexingFeatures*>(ft);
+                auto* index = reinterpret_cast<VkPhysicalDeviceDescriptorIndexingFeatures*>(base);
                 if (!index->descriptorBindingPartiallyBound || 
                     !index->descriptorBindingVariableDescriptorCount ||
                     !index->runtimeDescriptorArray)
@@ -184,8 +187,10 @@ bool vulkanContextBuilder::isModernFeatureSuitable(const VkPhysicalDevice gpu)
                 break;
             }
         }
+
+		base = base->pNext;
 	}
-    return true;
+    return isFeatureSuitable(features2.features);
 }
 
 bool vulkanContextBuilder::isQueueSuitable(const VkPhysicalDevice gpu) const{
@@ -199,13 +204,12 @@ bool vulkanContextBuilder::isSwapChainSuitable(const VkPhysicalDevice gpu) const
 	return !swapChainSupport.formats.empty() && !swapChainSupport.presentsModes.empty();
 }
 
-bool vulkanContextBuilder::isFeatureSuitable(const VkPhysicalDevice gpu) const
+bool vulkanContextBuilder::isFeatureSuitable(VkPhysicalDeviceFeatures features) const
 {
-    VkPhysicalDeviceFeatures features{};
+	for (int i = 0; i < featureBasic.size(); i++) 
+		if (!(features.*(featureBasic[i].member))) return false;
 
-    vkGetPhysicalDeviceFeatures(gpu, &features);
-
-    return features.geometryShader && feature.samplerAnisotropy;
+	return true;
 }
 
 void vulkanContextBuilder::choosePhysicalDevice()
@@ -251,7 +255,7 @@ void vulkanContextBuilder::createDevice()
 	createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 	createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
 	createInfo.pQueueCreateInfos = queueCreateInfos.data();
-	createInfo.pNext = nullptr;
+	createInfo.pNext = &features2;
 	createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
 	createInfo.ppEnabledExtensionNames = deviceExtensions.data();
 	if (enableValidationLayers)

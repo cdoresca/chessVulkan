@@ -2,6 +2,7 @@
 #include "VulkanWrapper/IBuilder.h"
 #include "VulkanWrapper/shader.h"
 #include "UI/cellUI.h"
+#include <VulkanWrapper/physicalDeviceInformation.h>
 
 app::app(){
     build();
@@ -16,10 +17,8 @@ void app::build(){
 
     camera = buildCamera(glm::vec3(0.0f),glm::vec3(0.0f,0.0f,1.0f),glm::vec3(0.0f, 1.0f,0.0f));
 
-	vulkanContextBuilder* ctxBuilder = new vulkanContextBuilder(m_window->getGLFW());
-    director<VkContext> dir(ctxBuilder);
-    dir.make();
-    ctx = ctxBuilder->get();
+	
+	buildDevice();
 
 	vulkanDisplayBuilder* displayBuilder = new vulkanDisplayBuilder(ctx, m_window->getGLFW());
     director<VkDisplay> dirDisplay(displayBuilder);
@@ -66,7 +65,9 @@ void app::build(){
 
     currentFrame = 0;
 
-	delete ctxBuilder;
+	addModels();
+
+
 	delete displayBuilder;
 	delete pipelineBuilder;
     
@@ -253,7 +254,7 @@ void app::cleanup(){
 }
 
 void app::addModels(){
-	//models.push_back(new cellUI(m_render));
+	models.push_back(new cellUI(m_render));
 }
 
 void app::run(){
@@ -273,5 +274,35 @@ void app::recreateSwapChain(){
     display = displayBuilder->get();
 
 	delete displayBuilder;
+
+}
+
+void app::buildDevice() {
+
+	std::vector<const char*> deviceExtensions = {
+		VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+		VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME
+	};
+
+	std::vector<PhysicalDeviceFeature> featureBasic = {
+		{ "geometryShader", &VkPhysicalDeviceFeatures::geometryShader },
+		{ "samplerAnisotropy", &VkPhysicalDeviceFeatures::samplerAnisotropy }
+	};
+
+	VkPhysicalDeviceBufferDeviceAddressFeatures bufferAddressFeatures {};
+	bufferAddressFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES;
+	bufferAddressFeatures.bufferDeviceAddress = VK_TRUE;
+	
+	VkPhysicalDeviceFeatures2 feature{};
+	feature.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
+
+	add(feature, reinterpret_cast<VkBaseOutStructure*>(&bufferAddressFeatures));
+
+	vulkanContextBuilder* ctxBuilder = new vulkanContextBuilder(m_window->getGLFW(), featureBasic, deviceExtensions ,feature);
+	director<VkContext> dir(ctxBuilder);
+	dir.make();
+	ctx = ctxBuilder->get();
+
+	delete ctxBuilder;
 
 }

@@ -16,3 +16,9 @@ struct PhysicalDevicePropriete {
 
 PhysicalDevicePropriete queryphysicalDevicePropriete(VkPhysicalDevice);
 
+void add(VkPhysicalDeviceFeatures2& feature2 , VkBaseOutStructure* feature);
+struct PhysicalDeviceFeature
+{
+	const char* name;
+	VkBool32 VkPhysicalDeviceFeatures::* member;
+};

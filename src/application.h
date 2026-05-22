@@ -29,7 +29,7 @@ class app{
     uint32_t currentFrame;
 
   
-
+    void buildDevice();
     void build();
     void drawFrame();
     void render(VkCommandBuffer cmd);

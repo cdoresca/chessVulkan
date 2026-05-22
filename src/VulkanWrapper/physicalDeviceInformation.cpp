@@ -17,3 +17,8 @@ PhysicalDevicePropriete queryphysicalDevicePropriete(VkPhysicalDevice dev) {
 
 	return prop;
 }
+
+void add(VkPhysicalDeviceFeatures2& feature2, VkBaseOutStructure* feature){
+	feature->pNext = reinterpret_cast<VkBaseOutStructure*>(feature2.pNext);
+	feature2.pNext = feature;
+}
