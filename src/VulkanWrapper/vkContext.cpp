@@ -62,8 +62,49 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBits
 	VkDebugUtilsMessageTypeFlagsEXT messageType,
 	const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
 	void* pUserData) {
+		
+		std::cerr << "[VULKAN]";
+		switch (messageSeverity)
+		{
+		case  VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
+				std::cerr << "[VERBOSE]";
+			break;
+		case  VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
+				std::cerr << "[WARNING]";
+			break;
 
-	std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
+		case  VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
+				std::cerr << "[INFO]";
+			break;
+		case  VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
+				std::cerr << "[ERROR]";
+			
+			break;
+		default:
+			break;
+		}
+		switch (messageType)
+		{
+		case VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT:
+				std::cerr << "[GENERAL]";
+			break;
+		case VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT:
+				std::cerr << "[VALIDATION]";
+			break;
+		case VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT:
+				std::cerr << "[PERFORMANCE]";
+			break;
+		default:
+			break;
+		}
+		std::cerr <<std::endl<<"Message ID Name : " << pCallbackData->pMessageIdName <<std::endl;
+		std::cerr<<"Message ID : "<< pCallbackData->messageIdNumber<<std::endl;
+		std::cerr<< "Message : "<< pCallbackData->pMessage;
+		
+		for (uint32_t i = 0; i < pCallbackData->objectCount; i++)
+		{	
+			std::cerr <<std::endl<<"Object "<< i << " : "<< pCallbackData->pObjects[i].pObjectName;
+		}
 
 	return VK_FALSE;
 }
@@ -216,6 +257,7 @@ bool vulkanContextBuilder::isFeatureSuitable(VkPhysicalDeviceFeatures features) 
 
 void vulkanContextBuilder::choosePhysicalDevice()
 {
+	
     uint32_t deviceCount = 0;
 
     VK_CHECK(vkEnumeratePhysicalDevices(context.instance, &deviceCount, nullptr));

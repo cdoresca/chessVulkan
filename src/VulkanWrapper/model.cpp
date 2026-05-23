@@ -1,4 +1,6 @@
 #include"model.h"
+#include <cstring>
+
 
 model::model(VkContext ctx, VkPipelineDescription pipeline, VkCommand* command): ctx(ctx),pipeline(pipeline),cmd(command){
     vertices = quad(100,10);
